@@ -13,7 +13,7 @@ require (
 	github.com/pborman/indent v1.2.1
 	github.com/pkg/profile v1.7.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cobra v1.8.1
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.6
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/term v0.29.0
