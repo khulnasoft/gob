@@ -3,7 +3,7 @@ module github.com/khulnasoft/gob
 go 1.22.0
 
 require (
-	github.com/google/go-cmp v0.6.0
+	github.com/google/go-cmp v0.7.0
 	github.com/gookit/color v1.5.4
 	github.com/iancoleman/strcase v0.3.0
 	github.com/khulnasoft-lab/go-logger v0.0.0-20250207014823-92e4fbdcd98f
