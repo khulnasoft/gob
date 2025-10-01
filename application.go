@@ -274,9 +274,10 @@ func (a *application) Run() {
 	if err := a.root.Execute(); err != nil {
 		a.handleExitError(err, os.Stderr)
 
-		exitCode = 1
 		if a.setupConfig.mapExitCode != nil {
 			exitCode = a.setupConfig.mapExitCode(err)
+		} else {
+			exitCode = 1
 		}
 	}
 }
