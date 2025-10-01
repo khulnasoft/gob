@@ -1,4 +1,4 @@
-package clio
+package gob
 
 import (
 	"fmt"
