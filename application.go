@@ -11,7 +11,6 @@ import (
 
 	"github.com/gookit/color"
 	"github.com/pborman/indent"
-	"github.com/pkg/profile"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v3"
@@ -24,6 +23,8 @@ import (
 type Initializer func(*State) error
 
 type PostRun func(*State, error)
+
+type MapExitCode func(error) int
 
 type postConstruct func(*application)
 
@@ -95,7 +96,7 @@ func (a *application) loadConfigs(cmd *cobra.Command, cfgs ...any) ([]any, error
 	}
 	allConfigs = append(allConfigs, cfgs...) // 3. allow for all other configs to be loaded + call PostLoad()
 
-	if err := gfi.Load(a.setupConfig.GifConfig, cmd, allConfigs...); err != nil {
+	if err := gfi.Load(a.setupConfig.GfiConfig, cmd, allConfigs...); err != nil {
 		return nil, fmt.Errorf("invalid application config: %v", err)
 	}
 	return allConfigs, nil
@@ -157,11 +158,8 @@ func (a *application) WrapRunE(fn func(cmd *cobra.Command, args []string) error)
 
 func (a *application) execute(ctx context.Context, errs <-chan error) error {
 	if a.state.Config.Dev != nil {
-		switch a.state.Config.Dev.Profile {
-		case ProfileCPU:
-			defer profile.Start(profile.CPUProfile).Stop()
-		case ProfileMem:
-			defer profile.Start(profile.MemProfile).Stop()
+		if profiler := parseProfile(a.state.Config.Dev.Profile); profiler != nil {
+			defer profiler()()
 		}
 	}
 
@@ -225,7 +223,7 @@ func logConfiguration(log logger.Logger, cfgs ...any) {
 }
 
 func (a *application) AddFlags(flags *pflag.FlagSet, cfgs ...any) {
-	gfi.AddFlags(a.setupConfig.GifConfig.Logger, flags, cfgs...)
+	gfi.AddFlags(a.setupConfig.GfiConfig.Logger, flags, cfgs...)
 	a.state.Config.FromCommands = append(a.state.Config.FromCommands, cfgs...)
 }
 
@@ -276,7 +274,11 @@ func (a *application) Run() {
 	if err := a.root.Execute(); err != nil {
 		a.handleExitError(err, os.Stderr)
 
-		exitCode = 1
+		if a.setupConfig.mapExitCode != nil {
+			exitCode = a.setupConfig.mapExitCode(err)
+		} else {
+			exitCode = 1
+		}
 	}
 }
 
@@ -352,7 +354,7 @@ func (a *application) setupCommand(cmd *cobra.Command, flags *pflag.FlagSet, fn 
 
 	a.state.Config.FromCommands = append(a.state.Config.FromCommands, cfgs...)
 
-	gfi.AddFlags(a.setupConfig.GifConfig.Logger, flags, cfgs...)
+	gfi.AddFlags(a.setupConfig.GfiConfig.Logger, flags, cfgs...)
 
 	return cmd
 }
