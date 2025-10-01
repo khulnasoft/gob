@@ -16,8 +16,8 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/khulnasoft/gfi"
-	"github.com/khulnasoft/go-logger"
-	"github.com/khulnasoft/go-logger/adapter/redact"
+	"github.com/khulnasoft-lab/go-logger"
+	"github.com/khulnasoft-lab/go-logger/adapter/redact"
 )
 
 type Initializer func(*State) error
