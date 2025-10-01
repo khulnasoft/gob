@@ -1,0 +1,19 @@
+name: Add to OSS board
+
+on:
+  issues:
+    types:
+      - opened
+      - reopened
+      - transferred
+      - labeled
+
+permissions:
+  issues: read
+
+jobs:
+
+  run:
+    uses: "khulnasoft/workflows/.github/workflows/oss-project-board-add.yaml@main"
+    secrets:
+      token: ${{ secrets.ORG_REPO_TOKEN_TOKEN }}
